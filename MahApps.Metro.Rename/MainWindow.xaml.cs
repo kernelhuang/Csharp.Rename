@@ -1,17 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using WinForms = System.Windows.Forms;
@@ -35,31 +26,41 @@ namespace MahApps.Metro.Rename
         private List<string> sourceFiles    = new List<string>();
         private List<string> destFiles      = new List<string>();
 
-        private string firstInputText   = "";
-        private string lastInputText    = "";
         private string sourceDirPath    = "";
         private string destDirPath      = "";
 
+        /// <summary>
+        /// Initialized Component
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Show Message
+        /// </summary>
         private void ShowMessage(string msg)
         {
             MessageBox.Show(msg);
         }
 
+        /// <summary>
+        /// Reset fileList and sourceFiles and destFiles by List.
+        /// </summary>
         private void Reset()
         {
-            this.fileList       = new List<string>();
-            this.sourceFiles    = new List<string>();
-            this.destFiles      = new List<string>();
+            fileList       = new List<string>();
+            sourceFiles    = new List<string>();
+            destFiles      = new List<string>();
         }
 
+        /// <summary>
+        /// Checks whether the fileList is empty list.
+        /// </summary>
         private bool FileList_Check()
         {
-            if (this.fileList == null || this.fileList.Count == 0)
+            if (fileList == null || fileList.Count == 0)
             {
                 return false;
             }
@@ -67,9 +68,12 @@ namespace MahApps.Metro.Rename
             return true;
         }
 
+        /// <summary>
+        /// Checks whether the sourceFiles is empty list.
+        /// </summary>
         private bool SourceFiles_Check()
         {
-            if (this.sourceFiles == null || this.sourceFiles.Count == 0)
+            if (sourceFiles == null || sourceFiles.Count == 0)
             {
                 return false;
             }
@@ -77,9 +81,12 @@ namespace MahApps.Metro.Rename
             return true;
         }
 
+        /// <summary>
+        /// Checks whether the destFiles is empty list.
+        /// </summary>
         private bool DestFiles_Check()
         {
-            if (this.destFiles == null || this.destFiles.Count == 0)
+            if (destFiles == null || destFiles.Count == 0)
             {
                 return false;
             }
@@ -87,37 +94,49 @@ namespace MahApps.Metro.Rename
             return true;
         }
 
+        /// <summary>
+        /// Checks whether sourceFiles or destFiles is empty list, And show message.
+        /// </summary>
         private bool SourceFilesAndDestFiles_Check()
         {
-            if (!this.SourceFiles_Check() || !this.DestFiles_Check())
+            if (!SourceFiles_Check() || !DestFiles_Check())
             {
                 string msg = "请重新选择源文件或文件夹";
-                this.ShowMessage(msg);
+                ShowMessage(msg);
                 return false;
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Checks whether select files button, And show message.
+        /// </summary>
         private bool SelectButton_Check()
         {
-            if (!this.FileList_Check())
+            if (!FileList_Check())
             {
-                this.ShowMessage(SELECT_MESSAGE);
+                ShowMessage(SELECT_MESSAGE);
                 return false;
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Create target directory.
+        /// </summary>
         private void CreateDestDir()
         {
-            if (!Directory.Exists(this.destDirPath))
+            if (!Directory.Exists(destDirPath))
             {
-                Directory.CreateDirectory(this.destDirPath);
+                Directory.CreateDirectory(destDirPath);
             }
         }
 
+        /// <summary>
+        /// Copy from source file to target file.
+        /// </summary>
         private void CopyFiles(string sourceFile, string destFile)
         {
             if (File.Exists(sourceFile))
@@ -126,78 +145,90 @@ namespace MahApps.Metro.Rename
             }
         }
 
+        /// <summary>
+        /// Removed of the decimal point.
+        /// </summary>
         private double ToChange(double value)
         {
             return value > 0 ? Math.Floor(value) : Math.Ceiling(value);
         }
 
+        /// <summary>
+        /// Checks whether firstInputBox or lastInputBox is empty.
+        /// </summary>
         private bool InputBox_Check()
         {
             if (string.IsNullOrEmpty(firstInputBox.Text))
             {
-                this.ShowMessage(FIRST_INPUT_MESSAGE);
+                ShowMessage(FIRST_INPUT_MESSAGE);
                 return false;
             }
 
             if (string.IsNullOrEmpty(lastInputBox.Text))
             {
-                this.ShowMessage(LAST_INPUT_MESSAGE);
+                ShowMessage(LAST_INPUT_MESSAGE);
                 return false;
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Handle the submit button click event.
+        /// </summary>
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!this.InputBox_Check())
+            if (!InputBox_Check())
             {
                 return;
             }
 
-            if (!this.SelectButton_Check())
+            if (!SelectButton_Check())
             {
                 return;
             }
 
-            if (!this.SourceFilesAndDestFiles_Check())
+            if (!SourceFilesAndDestFiles_Check())
             {
                 return;
             }
 
-            this.CreateDestDir();
-            int countFiles          = this.sourceFiles.Count;
-            progressBar.Visibility  = System.Windows.Visibility.Visible;
+            CreateDestDir();
+            int countFiles          = sourceFiles.Count;
+            progressBar.Visibility  = Visibility.Visible;
 
             for(int i = 0; i < countFiles; i++)
             {
-                double progressValue    = ((Convert.ToDouble(i) + 1) / countFiles) * 100;
-                progressBar.Value       = this.ToChange(progressValue);
-                this.CopyFiles(this.sourceFiles[i], this.destFiles[i]);
+                double progressValue    = (Convert.ToDouble(i) + 1) / countFiles * 100;
+                progressBar.Value       = ToChange(progressValue);
+                CopyFiles(sourceFiles[i], destFiles[i]);
 
-                if (i == (countFiles -1 ))
+                if (i == countFiles -1 )
                 {
-                    this.ShowMessage("文件已经修改完毕");
+                    ShowMessage("文件已经修改完毕");
                     progressBar.Value   = 0;
-                    progressBar.Visibility = System.Windows.Visibility.Hidden;
-                    this.Reset();
+                    progressBar.Visibility = Visibility.Hidden;
+                    Reset();
                     return;
                 }
             }
 
-            this.ShowMessage("文件修改失败，请重试");
+            ShowMessage("文件修改失败，请重试");
 
             return;
         }
 
+        /// <summary>
+        /// Handle the select files button click event.
+        /// </summary>
         private void SelectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!this.InputBox_Check())
+            if (!InputBox_Check())
             {
                 return;
             }
 
-            this.Reset();
+            Reset();
             fileListBox.Items.Clear();
             OpenFileDialog dialog   = new OpenFileDialog();
             dialog.Multiselect      = true;
@@ -205,99 +236,100 @@ namespace MahApps.Metro.Rename
 
             if (dialog.ShowDialog() == true)
             {
-                this.sourceDirPath  = Path.GetDirectoryName(dialog.FileName);
-                this.destDirPath    = this.sourceDirPath + "\\" + lastInputBox.Text;
-                fileListBox.Items.Add(SOURCE_DIR_TITLE + this.sourceDirPath);
+                sourceDirPath  = Path.GetDirectoryName(dialog.FileName);
+                destDirPath    = sourceDirPath + "\\" + lastInputBox.Text;
+                fileListBox.Items.Add(SOURCE_DIR_TITLE + sourceDirPath);
                 string[] filename   = dialog.SafeFileNames;
 
                 foreach(string name in filename)
                 {
                     string extension = Path.GetExtension(name);
-                    if (extension == ("." + firstInputBox.Text))
+                    if (extension == "." + firstInputBox.Text)
                     {
-                        this.sourceFiles.Add(this.sourceDirPath + "\\" + name);
+                        sourceFiles.Add(sourceDirPath + "\\" + name);
 
                         string destFilename = Path.GetFileNameWithoutExtension(name);
                         if(destFilename.IndexOf(" ") >= 0) {
                             string newDestFilename = new Regex("[\\s]+").Replace(destFilename, "_");
-                            this.destFiles.Add(this.sourceDirPath + "\\" + lastInputBox.Text + "\\" + newDestFilename + "." + lastInputBox.Text);
+                            destFiles.Add(sourceDirPath + "\\" + lastInputBox.Text + "\\" + newDestFilename + "." + lastInputBox.Text);
                         }
                         else
                         {
-                            this.destFiles.Add(this.sourceDirPath + "\\" + lastInputBox.Text + "\\" + destFilename + "." + lastInputBox.Text);
+                            destFiles.Add(sourceDirPath + "\\" + lastInputBox.Text + "\\" + destFilename + "." + lastInputBox.Text);
                         }
 
-                        this.fileList.Add(name);
+                        fileList.Add(name);
                         fileListBox.Items.Add(DOT_POINT + name);
                     }
                 }
 
-                if (!this.FileList_Check())
+                if (!FileList_Check())
                 {
                     string msg = "请重新选择后缀名为：" + firstInputBox.Text + "的文件";
-                    this.ShowMessage(msg);
+                    ShowMessage(msg);
                 }
             }
             return;
         }
 
+        /// <summary>
+        /// Handle the select folder button click event.
+        /// </summary>
         private void SelectFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!this.InputBox_Check())
+            if (!InputBox_Check())
             {
                 return;
             }
 
-            this.Reset();
+            Reset();
             fileListBox.Items.Clear();
             WinForms.FolderBrowserDialog folder = new WinForms.FolderBrowserDialog();
 
             if (folder.ShowDialog() == WinForms.DialogResult.OK)
             {
-                this.sourceDirPath      = folder.SelectedPath;
-                this.destDirPath        = this.sourceDirPath + "\\" + lastInputBox.Text;
-                DirectoryInfo dirInfo   = new DirectoryInfo(this.sourceDirPath);
+                sourceDirPath      = folder.SelectedPath;
+                destDirPath        = sourceDirPath + "\\" + lastInputBox.Text;
+                DirectoryInfo dirInfo   = new DirectoryInfo(sourceDirPath);
                 FileInfo[] files        = dirInfo.GetFiles();
-                fileListBox.Items.Add(SOURCE_DIR_TITLE + this.sourceDirPath);
+                fileListBox.Items.Add(SOURCE_DIR_TITLE + sourceDirPath);
 
                 foreach (FileInfo file in files)
                 {
                     string extension = Path.GetExtension(file.Name);
-                    if (extension == ("." + firstInputBox.Text))
+                    if (extension == "." + firstInputBox.Text)
                     {
-                        this.sourceFiles.Add(this.sourceDirPath + "\\" + file.Name);
+                        sourceFiles.Add(sourceDirPath + "\\" + file.Name);
                         string destFilename = Path.GetFileNameWithoutExtension(file.Name);
 
                         if(destFilename.IndexOf(" ") >= 0) {
                             string newDestFilename = new Regex("[\\s]+").Replace(destFilename, "_");
-                            this.destFiles.Add(this.sourceDirPath + "\\" + lastInputBox.Text + "\\" + newDestFilename + "." + lastInputBox.Text);
+                            destFiles.Add(sourceDirPath + "\\" + lastInputBox.Text + "\\" + newDestFilename + "." + lastInputBox.Text);
                         }
                         else
                         {
-                            this.destFiles.Add(this.sourceDirPath + "\\" + lastInputBox.Text + "\\" + destFilename + "." + lastInputBox.Text);
+                            destFiles.Add(sourceDirPath + "\\" + lastInputBox.Text + "\\" + destFilename + "." + lastInputBox.Text);
                         }
 
-                        this.fileList.Add(file.Name);
+                        fileList.Add(file.Name);
                         fileListBox.Items.Add(DOT_POINT + file.Name);
                     }
                 }
 
-                if (!this.FileList_Check())
+                if (!FileList_Check())
                 {
                     string msg = "此文件夹不存在后缀名为：" + firstInputBox.Text + "的文件，请重新选择文件夹";
-                    this.ShowMessage(msg);
+                    ShowMessage(msg);
                 }
             }
         }
 
         private void LastInputBox_TextInput(object sender, TextCompositionEventArgs e)
         {
-            this.lastInputText = lastInputBox.Text;
         }
         
         private void FirstInputBox_TextInput(object sender, TextCompositionEventArgs e)
         {
-            this.firstInputText = firstInputBox.Text;
         }
 
         private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
