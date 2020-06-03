@@ -178,17 +178,7 @@ namespace MahApps.Metro.Rename
         /// </summary>
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!InputBox_Check())
-            {
-                return;
-            }
-
-            if (!SelectButton_Check())
-            {
-                return;
-            }
-
-            if (!SourceFilesAndDestFiles_Check())
+            if (!InputBox_Check() || !SelectButton_Check() || !SourceFilesAndDestFiles_Check())
             {
                 return;
             }
